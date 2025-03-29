@@ -82,6 +82,7 @@ if(QT_VERSION_MAJOR EQUAL 6)
 endif()
 
 # =========== OpenCV ===========
+set(CMAKE_BUILD_TYPE "Debug")
 set(CMAKE_PREFIX_PATH "/usr/local/opencv_debug")
 find_package(OpenCV REQUIRED core highgui imgproc imgcodecs)
 target_link_libraries(${PROJECT_NAME} PRIVATE ${OpenCV_LIBS})

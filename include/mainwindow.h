@@ -8,11 +8,7 @@
 #include <QRadioButton>
 #include <QStackedWidget>
 
-QT_BEGIN_NAMESPACE
-namespace Ui {
-class MainWindow;
-}
-QT_END_NAMESPACE
+#include "ui.h"
 
 class MainWindow : public QMainWindow {
 	Q_OBJECT
@@ -21,10 +17,11 @@ class MainWindow : public QMainWindow {
 	~MainWindow();
 
    private:
-	QGroupBox* setupModeGroup();
-	QGroupBox* setupViewsGroup();
-	QGroupBox* setupRefocusGroup();
-	QGroupBox* setupSRGroup();
-	QGroupBox* setupDEGroup();
+	Ui::MainWindow* ui;
+	QGroupBox*		setupModeGroup();
+	QGroupBox*		setupViewsGroup();
+	QGroupBox*		setupRefocusGroup();
+	QGroupBox*		setupSRGroup();
+	QGroupBox*		setupDEGroup();
 };
 #endif // MAINWINDOW_H

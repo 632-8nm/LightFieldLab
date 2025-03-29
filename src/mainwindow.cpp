@@ -7,46 +7,44 @@
 #include <QSlider>
 #include <QVBoxLayout>
 
-// #include "./ui_mainwindow.h"
+#include "ui.h"
 
 MainWindow::MainWindow(QWidget *parent)
-	: QMainWindow(parent)
-// , ui(new Ui::MainWindow)
-{
-	// ui->setupUi(this);
+	: QMainWindow(parent), ui(new Ui::MainWindow) {
+	ui->setupUi(this);
 
 	// 主布局
-	QWidget *centralWidget = new QWidget(this);
-	centralWidget->setMinimumSize(1280, 720);
-	QHBoxLayout *mainLayout = new QHBoxLayout(centralWidget);
+	// QWidget *centralWidget = new QWidget(this);
+	// setCentralWidget(centralWidget);
+	// centralWidget->setMinimumSize(1280, 720);
+	// QHBoxLayout *mainLayout = new QHBoxLayout(centralWidget);
 
-	// === 左侧功能区 ===
-	QWidget		*leftPanel	= new QWidget();
-	QVBoxLayout *leftLayout = new QVBoxLayout(leftPanel);
+	// // === 左侧功能区 ===
+	// QWidget		*leftPanel	= new QWidget();
+	// QVBoxLayout *leftLayout = new QVBoxLayout(leftPanel);
 
-	QGroupBox *modeGroup	= setupModeGroup();	   // 1. 模式切换组
-	QGroupBox *viewsGroup	= setupViewsGroup();   // 2. 视角变换组
-	QGroupBox *refocusGroup = setupRefocusGroup(); // 3. 重聚焦组
-	QGroupBox *srGroup		= setupSRGroup();	   // 4. 超分辨组
-	QGroupBox *deGroup		= setupDEGroup();	   // 5. 深度估计组
+	// QGroupBox *modeGroup	= setupModeGroup();	   // 1. 模式切换组
+	// QGroupBox *viewsGroup	= setupViewsGroup();   // 2. 视角变换组
+	// QGroupBox *refocusGroup = setupRefocusGroup(); // 3. 重聚焦组
+	// QGroupBox *srGroup		= setupSRGroup();	   // 4. 超分辨组
+	// QGroupBox *deGroup		= setupDEGroup();	   // 5. 深度估计组
 
-	leftLayout->addWidget(modeGroup);
-	leftLayout->addWidget(viewsGroup);
-	leftLayout->addWidget(refocusGroup);
-	leftLayout->addWidget(srGroup);
-	leftLayout->addWidget(deGroup);
-	leftLayout->addStretch(); // 占位填充
-	leftLayout->addStretch();
+	// leftLayout->addWidget(modeGroup);
+	// leftLayout->addWidget(viewsGroup);
+	// leftLayout->addWidget(refocusGroup);
+	// leftLayout->addWidget(srGroup);
+	// leftLayout->addWidget(deGroup);
+	// leftLayout->addStretch(); // 占位填充
+	// leftLayout->addStretch();
 
-	// === 右侧显示区 ===
-	QLabel *rightPanel = new QLabel("图像显示区域");
-	rightPanel->setAlignment(Qt::AlignCenter);
-	rightPanel->setStyleSheet("border: 1px solid gray;");
+	// // === 右侧显示区 ===
+	// QLabel *rightPanel = new QLabel("图像显示区域");
+	// rightPanel->setAlignment(Qt::AlignCenter);
+	// rightPanel->setStyleSheet("border: 1px solid gray;");
 
-	// 主布局组装
-	mainLayout->addWidget(leftPanel, 1);
-	mainLayout->addWidget(rightPanel, 3);
-	setCentralWidget(centralWidget);
+	// // 主布局组装
+	// mainLayout->addWidget(leftPanel, 1);
+	// mainLayout->addWidget(rightPanel, 3);
 }
 
 MainWindow::~MainWindow() {
