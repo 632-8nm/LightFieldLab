@@ -18,10 +18,5 @@ class MainWindow : public QMainWindow {
 
    private:
 	Ui::MainWindow* ui;
-	QGroupBox*		setupModeGroup();
-	QGroupBox*		setupViewsGroup();
-	QGroupBox*		setupRefocusGroup();
-	QGroupBox*		setupSRGroup();
-	QGroupBox*		setupDEGroup();
 };
 #endif // MAINWINDOW_H
