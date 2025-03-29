@@ -10,20 +10,17 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 if(WIN32) # Windows
-    message(${CMAKE_SYSTEM_NAME})
-    set(CMAKE_PREFIX_PATH 
+    message(STATUS "Current system is ${CMAKE_SYSTEM_NAME}")
+    set(CMAKE_PREFIX_PATH
         "D:/Qt/6.7.2/msvc2019_64"
         "D:/Program Files/opencv/cudabuild/install/x64/vc17/lib"
-    ) 
-    message(${CMAKE_PREFIX_PATH})
+    )
 else() # Linux/MacOS
-    message(${CMAKE_SYSTEM_NAME})
-    set(CMAKE_PREFIX_PATH 
+    message(STATUS "Current system is ${CMAKE_SYSTEM_NAME}")
+    set(CMAKE_PREFIX_PATH
         "~/Qt/6.8.3/macos/lib/cmake"
         "/usr/local/opencv_debug"
-    ) 
-    set(CMAKE_PREFIX_PATH ) 
-    message(${CMAKE_PREFIX_PATH})
+    )
 endif()
 
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets)
