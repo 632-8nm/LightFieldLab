@@ -9,7 +9,22 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-set(CMAKE_PREFIX_PATH "~/Qt/6.8.3/macos/lib/cmake") # vscode手动指定路径
+if(WIN32) # Windows
+    message(${CMAKE_SYSTEM_NAME})
+    set(CMAKE_PREFIX_PATH 
+        "D:/Qt/6.7.2/msvc2019_64"
+        "D:/Program Files/opencv/cudabuild/install/x64/vc17/lib"
+    ) 
+    message(${CMAKE_PREFIX_PATH})
+else() # Linux/MacOS
+    message(${CMAKE_SYSTEM_NAME})
+    set(CMAKE_PREFIX_PATH 
+        "~/Qt/6.8.3/macos/lib/cmake"
+        "/usr/local/opencv_debug"
+    ) 
+    set(CMAKE_PREFIX_PATH ) 
+    message(${CMAKE_PREFIX_PATH})
+endif()
 
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
@@ -83,6 +98,5 @@ endif()
 
 # =========== OpenCV ===========
 set(CMAKE_BUILD_TYPE "Debug")
-set(CMAKE_PREFIX_PATH "/usr/local/opencv_debug")
 find_package(OpenCV REQUIRED core highgui imgproc imgcodecs)
 target_link_libraries(${PROJECT_NAME} PRIVATE ${OpenCV_LIBS})
