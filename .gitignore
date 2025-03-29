@@ -1,4 +1,6 @@
 build
+install
 CMakeLists.txt.user
 .cache
+.DS_Store
 mainwindow.ui
