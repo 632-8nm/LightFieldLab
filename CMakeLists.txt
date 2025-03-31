@@ -8,92 +8,96 @@ set(CMAKE_AUTORCC ON)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_BUILD_TYPE "Debug")
+set(CMAKE_INSTALL_PREFIX "${PROJECT_SOURCE_DIR}/install")
 
 if(WIN32) # Windows
-    message(STATUS "Current system is ${CMAKE_SYSTEM_NAME}")
     set(CMAKE_PREFIX_PATH
         "D:/Qt/6.7.2/msvc2019_64"
         "D:/opencv/install/x64/vc17/lib"
     )
 else() # Linux/MacOS
-    message(STATUS "Current system is ${CMAKE_SYSTEM_NAME}")
-    set(CMAKE_PREFIX_PATH
-        "~/Qt/6.8.3/macos/lib/cmake"
-        "/usr/local/opencv_debug"
-    )
+    set(CMAKE_PREFIX_PATH "~/Qt/6.8.3/macos/lib/cmake")
+    if(${CMAKE_BUILD_TYPE} STREQUAL "Debug")
+        list(APPEND CMAKE_PREFIX_PATH "/usr/local/opencv_debug")
+    else()
+        list(APPEND CMAKE_PREFIX_PATH "/usr/local/opencv_release")
+    endif()
 endif()
 
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
+find_package(OpenCV REQUIRED core highgui imgproc imgcodecs)
 
-# set(PROJECT_SOURCES
-#     main.cpp
-#     mainwindow.cpp
-#     mainwindow.h
-#     mainwindow.ui
-# )
-# set(SOURCES
-#     ${PROJECT_SOURCE_DIR}/src/main.cpp
-#     ${PROJECT_SOURCE_DIR}/src/mainwindow.cpp
-# )
-# set(HEADERS ${PROJECT_SOURCE_DIR}/include/mainwindow.h)
+# file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS "src/*.cpp")
+# file(GLOB_RECURSE HEADERS CONFIGURE_DEPENDS "include/*.h")
+# add_executable(${PROJECT_NAME} ${SOURCES} ${HEADERS})
 
-file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS "src/*.cpp")
-file(GLOB_RECURSE HEADERS CONFIGURE_DEPENDS "include/*.h")
-add_executable(${PROJECT_NAME} ${SOURCES} ${HEADERS})
-target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/include)
+set(PROJECT_SOURCES
+    src/main.cpp
+    src/mainwindow.cpp
+    src/ui.cpp
+    include/mainwindow.h
+    include/ui.h
+)
+set(BIN_NAME "lightfieldlab")
+qt_add_executable(${BIN_NAME}
+    MANUAL_FINALIZATION
+    ${PROJECT_SOURCES}
+)
 
-# if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
-#     qt_add_executable(${PROJECT_NAME}
-#         MANUAL_FINALIZATION
-#         ${PROJECT_SOURCES}
-#     )
-#     # Define target properties for Android with Qt 6 as:
-#     #    set_property(TARGET ${PROJECT_NAME} APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR
-#     #                 ${CMAKE_CURRENT_SOURCE_DIR}/android)
-#     # For more information, see https://doc.qt.io/qt-6/qt-add-executable.html#target-creation
-# else()
-#     if(ANDROID)
-#         add_library(${PROJECT_NAME} SHARED
-#             ${PROJECT_SOURCES}
-#         )
-#         # Define properties for Android with Qt 5 after find_package() calls as:
-#         #    set(ANDROID_PACKAGE_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/android")
-#     else()
-#         add_executable(${PROJECT_NAME}
-#             ${PROJECT_SOURCES}
-#         )
-#     endif()
-# endif()
+target_include_directories(${BIN_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/include)
+target_link_libraries(${BIN_NAME} PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
+target_link_libraries(${BIN_NAME} PRIVATE ${OpenCV_LIBS})
 
-target_link_libraries(${PROJECT_NAME} PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
+set(BUNDLE_PATH "${CMAKE_INSTALL_PREFIX}/lightfieldlab.app")
+set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
+set(CMAKE_INSTALL_RPATH "@executable_path/../lib")
 
-# Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
-# If you are developing for iOS or macOS you should consider setting an
-# explicit, fixed bundle identifier manually though.
-if(${QT_VERSION} VERSION_LESS 6.1.0)
-    set(BUNDLE_ID_OPTION MACOSX_BUNDLE_GUI_IDENTIFIER com.example.${PROJECT_NAME})
-endif()
-set_target_properties(${PROJECT_NAME} PROPERTIES
+set_target_properties(${BIN_NAME} PROPERTIES
     ${BUNDLE_ID_OPTION}
     MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
     MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
     MACOSX_BUNDLE TRUE
     WIN32_EXECUTABLE TRUE
+
+    MACOSX_BUNDLE TRUE
+    BUNDLE TRUE
+    BUNDLE_CONTENTS "${BUNDLE_PATH}/Contents"
 )
 
 include(GNUInstallDirs)
-install(TARGETS ${PROJECT_NAME}
-    BUNDLE DESTINATION .
+install(TARGETS ${BIN_NAME}
+    BUNDLE DESTINATION ${CMAKE_INSTALL_PREFIX}
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+
 )
 
 if(QT_VERSION_MAJOR EQUAL 6)
-    qt_finalize_executable(${PROJECT_NAME})
+    qt_finalize_executable(${BIN_NAME})
 endif()
 
-# =========== OpenCV ===========
-set(CMAKE_BUILD_TYPE "Debug")
-find_package(OpenCV REQUIRED core highgui imgproc imgcodecs)
-target_link_libraries(${PROJECT_NAME} PRIVATE ${OpenCV_LIBS})
+install(SCRIPT "${PROJECT_SOURCE_DIR}/install.cmake")
+# include(install.cmake)
+# enable_bundle_utilities(${BIN_NAME})
+# include(BundleUtilities)
+
+
+# info output 
+message(STATUS "==========================")
+message(STATUS "Current system is ${CMAKE_SYSTEM_NAME}")
+message(STATUS "CMAKE_BUILD_TYPE: ${CMAKE_BUILD_TYPE}")
+message(STATUS "CMAKE_PREFIX_PATH: ${CMAKE_PREFIX_PATH}")
+message(STATUS "CMAKE_INSTALL_PREFIX: ${CMAKE_INSTALL_PREFIX}")
+message(STATUS "CMAKE_INSTALL_LIBDIR: ${CMAKE_INSTALL_LIBDIR}")
+message(STATUS "CMAKE_INSTALL_BINDIR: ${CMAKE_INSTALL_BINDIR}")
+message(STATUS "CMAKE_INSTALL_INCLUDEDIR: ${CMAKE_INSTALL_INCLUDEDIR}")
+message(STATUS "OpenCV_DIR: ${OpenCV_DIR}")
+message(STATUS "OpenCV_VERSION: ${OpenCV_VERSION}")
+message(STATUS "OpenCV_LIB_DIR: ${OpenCV_LIB_DIR}")
+message(STATUS "OpenCV_LIBS: ${OpenCV_LIBS}")
+message(STATUS "OpenCV_INCLUDE_DIRS: ${OpenCV_INCLUDE_DIRS}")
+message(STATUS "QT_VERSION: ${QT_VERSION}")
+message(STATUS "==========================")
