@@ -13,7 +13,7 @@ if(WIN32) # Windows
     message(STATUS "Current system is ${CMAKE_SYSTEM_NAME}")
     set(CMAKE_PREFIX_PATH
         "D:/Qt/6.7.2/msvc2019_64"
-        "D:/Program Files/opencv/cudabuild/install/x64/vc17/lib"
+        "D:/opencv/install/x64/vc17/lib"
     )
 else() # Linux/MacOS
     message(STATUS "Current system is ${CMAKE_SYSTEM_NAME}")
