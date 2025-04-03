@@ -13,4 +13,4 @@ target_link_libraries(test_metal ${OpenCV_LIBS})
 
 add_executable(test_refocus test_refocus.cpp ${CMAKE_SOURCE_DIR}/src/refocus.cpp ${CMAKE_SOURCE_DIR}/include/refocus.h)
 target_include_directories(test_refocus PRIVATE ${CMAKE_SOURCE_DIR}/include)
-target_link_libraries(test_refocus PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
+target_link_libraries(test_refocus PRIVATE Qt${QT_VERSION_MAJOR}::Widgets ${OpenCV_LIBS})
