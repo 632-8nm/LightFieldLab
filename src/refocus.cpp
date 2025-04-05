@@ -1,5 +1,6 @@
 #include "refocus.h"
 
+#include <QtCore/qthread.h>
 #include <opencv2/core/hal/interface.h>
 
 #include <cmath>
@@ -13,7 +14,7 @@
 Refocus::Refocus(QObject* parent) : QObject(parent), _isGPU(false) {
 	// Constructor implementation
 }
-Refocus::Refocus(QObject* parent, const std::vector<cv::Mat>& src)
+Refocus::Refocus(const std::vector<cv::Mat>& src, QObject* parent)
 	: QObject(parent), _isGPU(false) {
 	// Constructor implementation
 	setLF(src);
@@ -88,8 +89,8 @@ void Refocus::refocus(float alpha, int offset) {
 			continue;
 		}
 		if (_isGPU) {
-			cv::add(_ymap, factor * (col - _center), yq_gpu);
-			cv::add(_xmap, factor * (row - _center), xq_gpu);
+			cv::add(_ymap_gpu, factor * (col - _center), yq_gpu);
+			cv::add(_xmap_gpu, factor * (row - _center), xq_gpu);
 			cv::remap((*_lf_gpu)[i], temp_gpu, yq_gpu, xq_gpu, cv::INTER_LINEAR,
 					  cv::BORDER_REPLICATE);
 			cv::add(temp_gpu, sum_gpu, sum_gpu);
@@ -106,5 +107,14 @@ void Refocus::refocus(float alpha, int offset) {
 		_refocusedImage = sum_gpu.getMat(cv::ACCESS_READ);
 	} else {
 		cv::divide(sum, divisor, _refocusedImage);
+	}
+}
+void Refocus::work_test() {
+	while (true) {
+		auto start = std::chrono::high_resolution_clock::now();
+		refocus(1.5, 2);
+		auto end = std::chrono::high_resolution_clock::now();
+		std::chrono::duration<double> elapsed = end - start;
+		emit						  refocusFinished(elapsed);
 	}
 }

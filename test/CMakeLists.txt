@@ -2,6 +2,10 @@ cmake_minimum_required(VERSION 3.10)
 project(test)
 # message(STATUS "CMAKE_PREFIX_PATH: ${CMAKE_PREFIX_PATH}")
 
+set(CMAKE_AUTOUIC ON)
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTORCC ON)
+
 # 定义资源目录
 set(RESOURCE_DIR "${CMAKE_SOURCE_DIR}/data")
 set(CMAKE_BUILD_TYPE "Debug")

@@ -1,5 +1,7 @@
 #ifndef REFOCUS_H
 #define REFOCUS_H
+#include <QtCore/qtmetamacros.h>
+
 #include <QObject>
 #include <QTHread>
 #include <memory>
@@ -11,8 +13,8 @@ class Refocus : public QObject {
 	Q_OBJECT
    public:
 	explicit Refocus(QObject* parent = nullptr);
-	explicit Refocus(QObject*					 parent = nullptr,
-					 const std::vector<cv::Mat>& src = std::vector<cv::Mat>());
+	explicit Refocus(const std::vector<cv::Mat>& src = std::vector<cv::Mat>(),
+					 QObject*					 parent = nullptr);
 	~Refocus();
 
 	void para_init(const std::vector<cv::Mat>& src);
@@ -22,6 +24,10 @@ class Refocus : public QObject {
 
 	bool	getGPU() const { return _isGPU; }
 	cv::Mat getRefocusedImage() const { return _refocusedImage; }
+   public slots:
+	void work_test();
+   signals:
+	void refocusFinished(std::chrono::duration<double> elapsed);
 
    private:
 	std::vector<cv::Mat>				   _lf;

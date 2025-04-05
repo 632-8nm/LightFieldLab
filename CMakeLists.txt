@@ -5,6 +5,9 @@ project(LightFieldLab VERSION 0.1 LANGUAGES CXX)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
+# set(CMAKE_AUTOUIC ON CACHE STRING "CMAKE_AUTOUIC")
+# set(CMAKE_AUTOMOC ON CACHE STRING "CMAKE_AUTOMOC")
+# set(CMAKE_AUTORCC ON CACHE STRING "CMAKE_AUTORCC")
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -38,9 +41,11 @@ set(PROJECT_SOURCES
     src/mainwindow.cpp
     src/ui.cpp
     src/refocus.cpp
+    src/Controller.cpp
     include/mainwindow.h
     include/refocus.h
     include/ui.h
+    include/Controller.h
 )
 set(BIN_NAME "lightfieldlab")
 qt_add_executable(${BIN_NAME}
