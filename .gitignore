@@ -3,4 +3,5 @@ install
 CMakeLists.txt.user
 .cache
 .DS_Store
+.vscode
 mainwindow.ui
