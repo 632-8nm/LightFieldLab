@@ -45,17 +45,47 @@ int main(int argc, char* argv[]) {
 	// cv::imshow("center", LF[112]);
 	// cv::waitKey(0);
 
-	Refocus* rfc = new Refocus(nullptr, LF_float32);
-
-	auto	start		 = std::chrono::high_resolution_clock::now();
-	cv::Mat refocusedImg = rfc->refocus(LF_float32, 1.5, 2);
-	auto	end			 = std::chrono::high_resolution_clock::now();
+	Refocus* rfc	= new Refocus(nullptr, LF_float32);
+	float	 alpha	= 1.5;
+	int		 offset = 2;
+	// cpu计算
+	rfc->setGPU(false);
+	auto start = std::chrono::high_resolution_clock::now();
+	rfc->refocus(alpha, offset);
+	auto end = std::chrono::high_resolution_clock::now();
 	std::chrono::duration<double> elapsed = end - start;
 	std::cout << "====== Refocus time: " << elapsed.count()
 			  << " seconds ======" << std::endl;
+	// cv::Mat refocusedImg = rfc->getRefocusedImage();
+	// refocusedImg.convertTo(refocusedImg, CV_8UC(refocusedImg.channels()));
+	// cv::imshow("1 cpu", refocusedImg);
+	// cv::waitKey(0);
 
+	// gpu计算
+	rfc->setGPU(true);
+	start = std::chrono::high_resolution_clock::now();
+	rfc->refocus(alpha, offset);
+	end		= std::chrono::high_resolution_clock::now();
+	elapsed = end - start;
+	std::cout << "====== Refocus time: " << elapsed.count()
+			  << " seconds ======" << std::endl;
+	// refocusedImg = rfc->getRefocusedImage();
+	// refocusedImg.convertTo(refocusedImg, CV_8UC(refocusedImg.channels()));
+	// cv::imshow("2 gpu", refocusedImg);
+	//   cv::waitKey(0);
+
+	// cpu计算
+	rfc->setGPU(false);
+	start = std::chrono::high_resolution_clock::now();
+	rfc->refocus(alpha, offset);
+	end		= std::chrono::high_resolution_clock::now();
+	elapsed = end - start;
+	std::cout << "====== Refocus time: " << elapsed.count()
+			  << " seconds ======" << std::endl;
+
+	cv::Mat refocusedImg = rfc->getRefocusedImage();
 	refocusedImg.convertTo(refocusedImg, CV_8UC(refocusedImg.channels()));
-	cv::imshow("refocused", refocusedImg);
+	cv::imshow("3 cpu", refocusedImg);
 	cv::waitKey(0);
 
 	delete rfc;
