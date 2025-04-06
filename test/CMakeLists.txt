@@ -36,6 +36,7 @@ add_executable(test_refocuser
     ${CMAKE_SOURCE_DIR}/src/lfloader.cpp
     ${CMAKE_SOURCE_DIR}/include/lfrefocuser.h
     ${CMAKE_SOURCE_DIR}/include/lfloader.h
+    ${CMAKE_SOURCE_DIR}/include/worker_interface.h
 )
 target_include_directories(test_refocuser PRIVATE ${CMAKE_SOURCE_DIR}/include)
 target_link_libraries(test_refocuser PRIVATE Qt${QT_VERSION_MAJOR}::Widgets ${OpenCV_LIBS})

@@ -1,9 +1,11 @@
 #include "lfrefocuser.h"
 
+#include <QtCore/qmetatype.h>
 #include <QtCore/qobject.h>
 #include <QtCore/qobjectdefs.h>
 #include <QtCore/qthread.h>
 #include <QtCore/qtmetamacros.h>
+#include <QtCore/qvariant.h>
 #include <QtWidgets/qwidget.h>
 #include <opencv2/core/hal/interface.h>
 
@@ -107,28 +109,28 @@ void Core::refocus(float alpha, int offset) {
 		cv::divide(sum, divisor, _refocusedImage);
 	}
 }
-// Worker::Worker() : _core(std::make_unique<Core>()) {}
 Worker::Worker(const std::vector<cv::Mat>& src) : _core(nullptr) {
 	_core = std::make_unique<Core>(src);
 }
-void Worker::refocusRequest(float alpha, int offset) {
+void Worker::refocus(float alpha, int offset) {
 	auto start = std::chrono::high_resolution_clock::now();
 	_core->refocus(alpha, offset);
 	auto end = std::chrono::high_resolution_clock::now();
 	std::chrono::duration<double> elapsed = end - start;
-	emit						  refocusFinished(elapsed);
+	emit operationCompleted("refocus", QVariant::fromValue(elapsed));
 }
-void Worker::setGpuRequest(bool enable) {
-	if (_core == nullptr)
-		return;
+void Worker::setGpu(bool enable) {
 	_core->setGPU(enable);
-	// emit getGpuFinished(_core->getGPU()); // 发送状态信号
+	emit operationCompleted("setGpu", enable);
 }
-void Worker::getGpuRequest() {
-	if (_core == nullptr)
-		return;
-	emit getGpuFinished(_core->getGPU());
+
+// getGpu 实现
+bool Worker::getGpu() {
+	bool status = _core->getGPU();
+	emit operationCompleted("getGpu", status);
+	return status;
 }
+
 } // namespace LFRefocus
 
 QLFRefocuser::QLFRefocuser(const std::vector<cv::Mat>& src, QObject* parent)
@@ -136,12 +138,11 @@ QLFRefocuser::QLFRefocuser(const std::vector<cv::Mat>& src, QObject* parent)
 	_worker = new LFRefocus::Worker(src);
 	_thread = new QThread(this);
 	_worker->moveToThread(_thread);
-	connect(_worker, &LFRefocus::Worker::refocusFinished, this,
-			&QLFRefocuser::refocusFinished);
-	connect(_worker, &LFRefocus::Worker::getGpuFinished, this,
-			&QLFRefocuser::getGpuFinished);
-	connect(_thread, &QThread::finished, _worker, &QObject::deleteLater);
 	_thread->start();
+
+	connect(_worker, &LFRefocus::Worker::operationCompleted, this,
+			&QLFRefocuser::resultReady);
+	qRegisterMetaType<QVariant>("QVariant");
 }
 QLFRefocuser::~QLFRefocuser() {
 	if (_thread) {
@@ -154,22 +155,4 @@ QLFRefocuser::~QLFRefocuser() {
 		delete _worker;
 		_worker = nullptr;
 	}
-}
-void QLFRefocuser::refocusRequest(float alpha, int offset) {
-	if (_worker) {
-		QMetaObject::invokeMethod(_worker, [this, alpha, offset]() {
-			_worker->refocusRequest(alpha, offset);
-		});
-	}
-}
-void QLFRefocuser::setGpuRequest(bool enable) {
-	if (_worker) {
-		QMetaObject::invokeMethod(
-			_worker, [this, enable]() { _worker->setGpuRequest(enable); });
-	}
-}
-void QLFRefocuser::getGpuRequest() {
-	if (_worker == nullptr)
-		return;
-	QMetaObject::invokeMethod(_worker, [this]() { _worker->getGpuRequest(); });
 }

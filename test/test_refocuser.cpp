@@ -2,6 +2,7 @@
 #include <QtCore/qthread.h>
 #include <QtCore/qtimer.h>
 #include <QtCore/qtmetamacros.h>
+#include <QtCore/qvariant.h>
 #include <QtWidgets/qapplication.h>
 #include <QtWidgets/qboxlayout.h>
 #include <QtWidgets/qlabel.h>
@@ -13,6 +14,7 @@
 #include <QMainWindow>
 #include <QTimer>
 #include <QVBoxLayout>
+#include <chrono>
 #include <cstring>
 #include <iostream>
 #include <opencv2/highgui.hpp>
@@ -31,14 +33,11 @@ class Window : public QMainWindow {
 		bool		isRGB = strcmp(argv[2], "1") == 0 ? true : false;
 		LFLoader	loader;
 		loader.loadSAI(path, isRGB);
-		// std::vector<cv::Mat> LF			= loader.getLF();
 		std::vector<cv::Mat> LF_float32 = loader.getLF_float32();
 
 		bool		  isGpu		= false;
 		QLFRefocuser* refocuser = new QLFRefocuser(LF_float32, this);
-		refocuser->setGpuRequest(false);
-		// QThread* thread = new QThread(this);
-		// refocuser->moveToThread(thread);
+		refocuser->execute("setGpu", false);
 
 		QWidget* centralWidget = new QWidget(this);
 		setCentralWidget(centralWidget);
@@ -57,19 +56,21 @@ class Window : public QMainWindow {
 		hLayout->addWidget(gpuButton);
 		layout->addLayout(hLayout);
 
+		connect(refocuser, &QLFRefocuser::resultReady, this,
+				[refocusLabel](QString op, QVariant result) {
+					if (op == "refocus") {
+						auto elapsed =
+							result.value<std::chrono::duration<double>>();
+						refocusLabel->setText(
+							QString("Refocus time: %1").arg(elapsed.count()));
+					}
+				});
 		connect(refocusButton, &QPushButton::clicked, this,
-				[refocuser, refocusButton]() {
-					refocuser->refocusRequest(1.5, 2);
-				});
-		connect(refocuser, &QLFRefocuser::refocusFinished, this,
-				[refocusLabel](std::chrono::duration<double> elapsed) {
-					refocusLabel->setText(
-						QString("Refocus time: %1").arg(elapsed.count()));
-				});
+				[refocuser]() { refocuser->execute("refocus", 1.5f, 2); });
 		connect(gpuButton, &QPushButton::clicked, this,
 				[&isGpu, gpuLable, refocuser]() {
 					isGpu = !isGpu;
-					refocuser->setGpuRequest(isGpu);
+					refocuser->execute("setGpu", isGpu);
 					gpuLable->setText(
 						QString("Current use: %1").arg(isGpu ? "GPU" : "CPU"));
 				});
