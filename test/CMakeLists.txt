@@ -20,8 +20,23 @@ find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
 add_executable(test_metal test_metal.cpp)
 target_link_libraries(test_metal ${OpenCV_LIBS})
 
-# test_refocus
-add_executable(test_refocus test_refocus.cpp ${CMAKE_SOURCE_DIR}/src/refocus.cpp ${CMAKE_SOURCE_DIR}/include/refocus.h)
-target_include_directories(test_refocus PRIVATE ${CMAKE_SOURCE_DIR}/include)
-target_link_libraries(test_refocus PRIVATE Qt${QT_VERSION_MAJOR}::Widgets ${OpenCV_LIBS})
+# test_loader
+add_executable(test_loader
+    test_loader.cpp
+    ${CMAKE_SOURCE_DIR}/src/lfloader.cpp
+    ${CMAKE_SOURCE_DIR}/include/lfloader.h
+)
+target_include_directories(test_loader PRIVATE ${CMAKE_SOURCE_DIR}/include)
+target_link_libraries(test_loader PRIVATE Qt${QT_VERSION_MAJOR}::Widgets ${OpenCV_LIBS})
+
+# test_refocuser
+add_executable(test_refocuser
+    test_refocuser.cpp
+    ${CMAKE_SOURCE_DIR}/src/lfrefocuser.cpp
+    ${CMAKE_SOURCE_DIR}/src/lfloader.cpp
+    ${CMAKE_SOURCE_DIR}/include/lfrefocuser.h
+    ${CMAKE_SOURCE_DIR}/include/lfloader.h
+)
+target_include_directories(test_refocuser PRIVATE ${CMAKE_SOURCE_DIR}/include)
+target_link_libraries(test_refocuser PRIVATE Qt${QT_VERSION_MAJOR}::Widgets ${OpenCV_LIBS})
 # message(STATUS "OpenCV_LIBS: ${OpenCV_LIBS}")

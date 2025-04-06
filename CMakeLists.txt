@@ -40,12 +40,12 @@ set(PROJECT_SOURCES
     src/main.cpp
     src/mainwindow.cpp
     src/ui.cpp
-    src/refocus.cpp
-    src/Controller.cpp
+    src/lfrefocuser.cpp
+    src/controller.cpp
     include/mainwindow.h
-    include/refocus.h
+    include/lfrefocuser.h
     include/ui.h
-    include/Controller.h
+    include/controller.h
 )
 set(BIN_NAME "lightfieldlab")
 qt_add_executable(${BIN_NAME}

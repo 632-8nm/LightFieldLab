@@ -1,0 +1,77 @@
+#ifndef LFREFOCUSER_H
+#define LFREFOCUSER_H
+#include <QtCore/qobject.h>
+#include <QtCore/qthread.h>
+#include <QtCore/qtmetamacros.h>
+
+#include <QObject>
+#include <QTHread>
+#include <memory>
+#include <opencv2/core.hpp>
+#include <opencv2/core/mat.hpp>
+#include <opencv2/core/types.hpp>
+#include <vector>
+
+namespace LFRefocus {
+class Core {
+   public:
+	Core(const std::vector<cv::Mat>& src);
+	~Core();
+
+	void init(const std::vector<cv::Mat>& src);
+	void refocus(float alpha, int offset);
+	void setLF(const std::vector<cv::Mat>& src);
+	void setGPU(bool isGPU);
+
+	bool	getGPU();
+	cv::Mat getRefocusedImage() const { return _refocusedImage; }
+
+   private:
+	std::vector<cv::Mat>				   _lf;
+	std::unique_ptr<std::vector<cv::UMat>> _lf_gpu;
+	bool								   _isGPU = false, isStop = false;
+	int									   _views, _len, _center, _type;
+	cv::Mat								   _xmap, _ymap, _refocusedImage;
+	cv::UMat							   _xmap_gpu, _ymap_gpu;
+	cv::Size							   _size;
+};
+class Worker : public QObject {
+	Q_OBJECT
+   public:
+	Worker(const std::vector<cv::Mat>& src);
+
+   public slots:
+	void refocusRequest(float alpha, int offset);
+	void setGpuRequest(bool enable); // 新增GPU设置槽
+	void getGpuRequest();
+
+   signals:
+	void refocusFinished(std::chrono::duration<double> elapsed);
+	void getGpuFinished(bool isGPU); // 新增状态信号
+
+   private:
+	std::unique_ptr<Core> _core;
+};
+} // namespace LFRefocus
+
+class QLFRefocuser : public QObject {
+	Q_OBJECT
+   public:
+	QLFRefocuser(const std::vector<cv::Mat>& src, QObject* parent = nullptr);
+	~QLFRefocuser();
+
+   public slots:
+	void refocusRequest(float alpha, int offset);
+	void setGpuRequest(bool enable); // 对外暴露的GPU设置接口
+	void getGpuRequest();			 // 对外暴露的获取GPU状态接口
+
+   signals:
+	void refocusFinished(std::chrono::duration<double> elapsed);
+	void getGpuFinished(bool isGPU); // 转发状态信号
+
+   private:
+	QThread*		   _thread;
+	LFRefocus::Worker* _worker;
+};
+
+#endif
