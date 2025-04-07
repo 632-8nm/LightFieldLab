@@ -11,6 +11,7 @@ class WorkerInterface : public QObject {
 	template <typename Func, typename... Args>
 	void invoke(Func&& func, Args&&... args) {
 		QMetaObject::invokeMethod(this, std::forward<Func>(func),
+								  Qt::QueuedConnection,
 								  Q_ARG(Args, std::forward<Args>(args))...);
 	}
 };
