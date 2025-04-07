@@ -9,11 +9,12 @@
 #include <QtCore/qvariant.h>
 
 #include <QObject>
-#include <QTHread>
+#include <QThread>
 #include <memory>
 #include <opencv2/core.hpp>
 #include <opencv2/core/mat.hpp>
 #include <opencv2/core/types.hpp>
+#include <utility>
 #include <vector>
 
 #include "worker_interface.h"
@@ -49,14 +50,7 @@ class Worker : public WorkerInterface {
 	Q_INVOKABLE void setGpu(bool enable);
 	Q_INVOKABLE bool getGpu();
 
-	//    public slots:
-	// 	void refocusRequest(float alpha, int offset);
-	// 	void setGpuRequest(bool enable); // 新增GPU设置槽
-	// 	void getGpuRequest();
-
    signals:
-	// void refocusFinished(std::chrono::duration<double> elapsed);
-	// void getGpuFinished(bool isGPU); // 新增状态信号
 	void operationCompleted(QString type, QVariant result);
 
    private:
@@ -75,14 +69,7 @@ class QLFRefocuser : public QObject {
 						std::forward<Args>(args)...);
 	}
 
-	//    public slots:
-	// 	void refocusRequest(float alpha, int offset);
-	// 	void setGpuRequest(bool enable); // 对外暴露的GPU设置接口
-	// 	void getGpuRequest();			 // 对外暴露的获取GPU状态接口
-
    signals:
-	// void refocusFinished(std::chrono::duration<double> elapsed);
-	// void getGpuFinished(bool isGPU); // 转发状态信号
 	void resultReady(QString operation, QVariant result);
 
    private:
