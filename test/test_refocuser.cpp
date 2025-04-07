@@ -37,7 +37,7 @@ class Window : public QMainWindow {
 
 		bool		  isGpu		= false;
 		QLFRefocuser* refocuser = new QLFRefocuser(LF_float32, this);
-		refocuser->execute("setGpu", false);
+		refocuser->execute("refocus", &LFRefocus::Core::setGPU, false);
 
 		QWidget* centralWidget = new QWidget(this);
 		setCentralWidget(centralWidget);
@@ -65,12 +65,15 @@ class Window : public QMainWindow {
 							QString("Refocus time: %1").arg(elapsed.count()));
 					}
 				});
-		connect(refocusButton, &QPushButton::clicked, this,
-				[refocuser]() { refocuser->execute("refocus", 1.5f, 2); });
+		connect(refocusButton, &QPushButton::clicked, this, [refocuser]() {
+			refocuser->execute("refocus", &LFRefocus::Core::refocus, 1.5f, 2);
+		});
 		connect(gpuButton, &QPushButton::clicked, this,
 				[&isGpu, gpuLable, refocuser]() {
 					isGpu = !isGpu;
-					refocuser->execute("setGpu", isGpu);
+					// refocuser->execute("setGpu", isGpu);
+					// refocuser->execute(&LFRefocus::Core::refocus, 1.5f, 2);
+					// refocuser->execute(&LFRefocus::Core::setGPU, false);
 					gpuLable->setText(
 						QString("Current use: %1").arg(isGpu ? "GPU" : "CPU"));
 				});

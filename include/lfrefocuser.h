@@ -50,10 +50,27 @@ class Worker : public WorkerInterface {
 	Q_INVOKABLE void setGpu(bool enable);
 	Q_INVOKABLE bool getGpu();
 
+	template <typename... Args>
+	void executeAlgorithm(void (Core::*method)(Args...), Args&&... args) {
+		invokeAsync([this, method,
+					 argsTuple = std::make_tuple(
+						 std::forward<Args>(args)...)]() mutable {
+			std::apply(
+				[this, method](auto&&... unpackedArgs) {
+					(_core.get()->*method)(
+						std::forward<decltype(unpackedArgs)>(unpackedArgs)...);
+				},
+				std::move(argsTuple));
+			emit operationCompleted("algorithmExecuted", QVariant(true));
+		});
+	}
+
    signals:
 	void operationCompleted(QString type, QVariant result);
+	// void refocusCompleted(std::chrono::duration<double> elapsed);
 
-   private:
+	//    private:
+   public:
 	std::unique_ptr<Core> _core;
 };
 } // namespace LFRefocus
@@ -63,12 +80,29 @@ class QLFRefocuser : public QObject {
    public:
 	QLFRefocuser(const std::vector<cv::Mat>& src, QObject* parent = nullptr);
 	~QLFRefocuser();
+	// template <typename... Args>
+	// void execute(const QString& operation, Args... args) {
+	// 	_worker->invoke(operation.toStdString().c_str(),
+	// 					std::forward<Args>(args)...);
+	// }
 	template <typename... Args>
-	void execute(const QString& operation, Args... args) {
-		_worker->invoke(operation.toStdString().c_str(),
-						std::forward<Args>(args)...);
+	void execute(const QString& opName,
+				 void (LFRefocus::Core::*method)(Args...), Args&&... args) {
+		_worker->invokeAsync([this, opName, method,
+							  argsTuple = std::make_tuple(
+								  std::forward<Args>(args)...)]() mutable {
+			std::apply(
+				[this, method](auto&&... unpackedArgs) {
+					(_worker->_core.get()->*method)(
+						std::forward<decltype(unpackedArgs)>(unpackedArgs)...);
+				},
+				std::move(argsTuple));
+			emit _worker->operationCompleted(opName, QVariant(true));
+		});
 	}
-
+	// void execute(void (LFRefocus::Core::*method)(Args...), Args&&... args) {
+	// 	_worker->executeAlgorithm(method, std::forward<Args>(args)...);
+	// }
    signals:
 	void resultReady(QString operation, QVariant result);
 

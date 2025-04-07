@@ -118,6 +118,7 @@ void Worker::refocus(float alpha, int offset) {
 	auto end = std::chrono::high_resolution_clock::now();
 	std::chrono::duration<double> elapsed = end - start;
 	emit operationCompleted("refocus", QVariant::fromValue(elapsed));
+	// emit refocusCompleted(elapsed);
 }
 void Worker::setGpu(bool enable) {
 	_core->setGPU(enable);
