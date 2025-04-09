@@ -65,20 +65,23 @@ class Window : public QMainWindow {
 							QString("Refocus time: %1").arg(elapsed.count()));
 					}
 				});
-		connect(refocusButton, &QPushButton::clicked, this,
-				[refocuser]() { refocuser->execute("refocus", 1.5f, 2); });
+		connect(refocusButton, &QPushButton::clicked, this, [refocuser]() {
+			// refocuser->execute(&LFRefocus::Worker::refocus, 1.5f, 2);
+			refocuser->execute("refocus", 1.5f, 2);
+		});
 		connect(gpuButton, &QPushButton::clicked, this,
 				[&isGpu, gpuLable, refocuser]() {
 					isGpu = !isGpu;
+					// refocuser->execute(&LFRefocus::Worker::setGpu, isGpu);
 					refocuser->execute("setGpu", isGpu);
 					gpuLable->setText(
 						QString("Current use: %1").arg(isGpu ? "GPU" : "CPU"));
 				});
 
 		QTimer* timer = new QTimer(this);
-		timer->start(200); // 每0.2秒更新一次
+		timer->start(100); // 每0.2秒更新一次
 		connect(timer, &QTimer::timeout, this, [this, counterLabel]() {
-			counter += 0.2;
+			counter += 0.1;
 			counterLabel->setText(QString("Counter: %1").arg(counter));
 		});
 	}
