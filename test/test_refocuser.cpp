@@ -37,7 +37,7 @@ class Window : public QMainWindow {
 
 		bool		  isGpu		= false;
 		QLFRefocuser* refocuser = new QLFRefocuser(LF_float32, this);
-		refocuser->execute("setGpu", false);
+		refocuser->execute("refocus", &LFRefocus::Core::setGPU, false);
 
 		QWidget* centralWidget = new QWidget(this);
 		setCentralWidget(centralWidget);
