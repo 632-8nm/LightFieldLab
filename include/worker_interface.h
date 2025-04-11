@@ -1,5 +1,5 @@
-#ifndef WORKER_INTERFACE
-#define WORKER_INTERFACE
+#ifndef WORKER_INTERFACE_H
+#define WORKER_INTERFACE_H
 
 #include <QtCore/qtmetamacros.h>
 

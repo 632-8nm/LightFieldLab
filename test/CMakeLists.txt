@@ -16,15 +16,29 @@ find_package(OpenCV REQUIRED COMPONENTS core imgproc imgcodecs highgui)
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
 
+# test
+add_executable(test test.cpp)
+
 # test_metal
 add_executable(test_metal test_metal.cpp)
 target_link_libraries(test_metal ${OpenCV_LIBS})
 
-# test_loader
+# test_window_base
+add_executable(test_window_base
+    test_window_base.cpp
+    ${CMAKE_SOURCE_DIR}/src/lfloader.cpp
+    ${CMAKE_SOURCE_DIR}/include/window_base.h
+    ${CMAKE_SOURCE_DIR}/include/lfloader.h
+)
+target_include_directories(test_window_base PRIVATE ${CMAKE_SOURCE_DIR}/include)
+target_link_libraries(test_window_base PRIVATE Qt${QT_VERSION_MAJOR}::Widgets ${OpenCV_LIBS})
+
 add_executable(test_lfloader
     test_lfloader.cpp
     ${CMAKE_SOURCE_DIR}/src/lfloader.cpp
+    ${CMAKE_SOURCE_DIR}/include/lfdata.h
     ${CMAKE_SOURCE_DIR}/include/lfloader.h
+    ${CMAKE_SOURCE_DIR}/include/window_base.h
 )
 target_include_directories(test_lfloader PRIVATE ${CMAKE_SOURCE_DIR}/include)
 target_link_libraries(test_lfloader PRIVATE Qt${QT_VERSION_MAJOR}::Widgets ${OpenCV_LIBS})
