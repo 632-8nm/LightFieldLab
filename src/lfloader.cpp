@@ -1,5 +1,6 @@
 #include "lfloader.h"
 
+#include <QtCore/qlogging.h>
 #include <QtWidgets/qwidget.h>
 
 #include <algorithm>
@@ -13,27 +14,22 @@
 
 namespace LFLoader {
 void Core::load(const std::string& path, const bool& isRGB) {
-	if (!_lf.empty() && !_lf_float32.empty()) {
-		_lf.clear();
-		_lf_float32.clear();
+	if (!lf.empty()) {
+		lf.clear();
 	}
 
 	std::vector<std::string> filenames;
-
 	for (const auto& entry : std::filesystem::directory_iterator(path)) {
 		if (entry.is_regular_file()) {
 			filenames.push_back(
 				entry.path().filename().string()); // 只保存文件名
 		}
 	}
-
-	// 排序
 	std::sort(filenames.begin(), filenames.end());
 
-	// 输出
-	std::vector<cv::Mat> lf, lf_float32;
+	std::vector<cv::Mat> temp;
 	for (const auto& name : filenames) {
-		cv::Mat		img, img_float32;
+		cv::Mat		img;
 		std::string filename = path + "/" + name;
 		// std::cout << filename << std::endl;
 		if (isRGB) {
@@ -41,13 +37,22 @@ void Core::load(const std::string& path, const bool& isRGB) {
 		} else {
 			img = cv::imread(filename, cv::IMREAD_GRAYSCALE);
 		}
-
-		img.convertTo(img_float32, CV_32FC(img.channels()));
-		lf.push_back(img);
-		lf_float32.push_back(img_float32);
+		temp.emplace_back(img);
 	}
-	_lf			= std::move(LightField(lf));
-	_lf_float32 = std::move(LightField(lf_float32));
+	lf = LightField(temp);
 	std::cout << "Loading finished!" << std::endl;
 }
-} // namespace LFLoader
+Worker::Worker(QObject* parent) : QObject(parent) {
+	_core = std::make_unique<Core>();
+}
+void Worker::printThreadId() {
+	std::cout << "LFLoader threadId: " << QThread::currentThreadId()
+			  << " == printThreadId called!" << std::endl;
+}
+void Worker::load(const QString& path, const bool& isRGB) {
+	std::cout << "load called! == LFLoader threadId: "
+			  << QThread::currentThreadId() << std::endl;
+	_core->load(path.toStdString(), isRGB);
+	emit lfUpdated(std::make_shared<LightField>(_core->lf));
+};
+}; // namespace LFLoader

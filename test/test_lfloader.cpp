@@ -10,6 +10,7 @@
 #include <opencv2/core/mat.hpp>
 #include <opencv2/highgui.hpp>
 #include <opencv2/opencv.hpp>
+#include <ostream>
 
 #include "lfdata.h"
 #include "lfloader.h"
@@ -18,9 +19,10 @@ int test_signals(int argc, char* argv[]) {
 	QApplication app(argc, argv);
 	WindowBase	 window;
 
+	std::cout << "test LFLoader with Qt signals!" << std::endl;
 	std::cout << "Main thread: " << QThread::currentThreadId() << std::endl;
 
-	LFLoader::Worker* lfloader = new LFLoader::Worker(); // 不指定父对象
+	LFLoader::Worker* lfloader = new LFLoader::Worker();
 	std::string		  path(argv[1]);
 	bool			  isRGB = strcmp(argv[2], "1") == 0 ? true : false;
 
@@ -48,10 +50,6 @@ int test_signals(int argc, char* argv[]) {
 	QObject::connect(
 		&window, &WindowBase::destroyed, &window,
 		[&]() {
-			if (lfloader) {
-				delete lfloader;
-				// lfloader->deleteLater(); // 使用Qt的安全删除机制
-			}
 			window.thread->quit(); // 确保线程退出
 			window.thread->wait(); // 等待线程结束
 		},
@@ -60,68 +58,63 @@ int test_signals(int argc, char* argv[]) {
 	window.show();
 	return app.exec();
 }
-int test_template(int argc, char* argv[]) {
-	QApplication app(argc, argv);
-	WindowBase	 window;
+// int test_template(int argc, char* argv[]) {
+// 	QApplication app(argc, argv);
+// 	WindowBase	 window;
+// 	std::cout << "test LFLoader with template!" << std::endl;
+// 	std::cout << "Main thread: " << QThread::currentThreadId() << std::endl;
 
-	std::cout << "Main thread: " << QThread::currentThreadId() << std::endl;
+// 	LFLoader::Worker* lfloader = new LFLoader::Worker(); // 不指定父对象
+// 	std::string		  path(argv[1]);
+// 	bool			  isRGB = strcmp(argv[2], "1") == 0 ? true : false;
 
-	LFLoader::Worker_template* lfloader =
-		new LFLoader::Worker_template(); // 不指定父对象
-	std::string path(argv[1]);
-	bool		isRGB = strcmp(argv[2], "1") == 0 ? true : false;
+// 	lfloader->moveToThread(window.thread);
 
-	lfloader->moveToThread(window.thread);
+// 	QObject::connect(
+// 		window.thread, &QThread::started, lfloader,
+// 		[&]() { lfloader->invoke(&LFLoader::Core::load, path, isRGB); },
+// 		Qt::QueuedConnection);
+// 	window.thread->start();
 
-	QObject::connect(
-		window.thread, &QThread::started, lfloader,
-		[&]() { lfloader->invoke(&LFLoader::Core::load, path, isRGB); },
-		Qt::QueuedConnection);
-	window.thread->start();
+// 	// 在类中添加成员变量
+// 	QFutureWatcher<LightField> futureWatcher;
 
-	// 在类中添加成员变量
-	QFutureWatcher<LightField> futureWatcher;
+// 	// 连接信号槽
+// 	QObject::connect(&futureWatcher, &QFutureWatcher<LightField>::finished,
+// 					 &window, [&]() {
+// 						 auto result = futureWatcher.result();
+// 						 cv::imshow("center", result.getCenter());
+// 						 futureWatcher.waitForFinished();
+// 					 });
 
-	// 连接信号槽
-	QObject::connect(&futureWatcher, &QFutureWatcher<LightField>::finished,
-					 &window, [&]() {
-						 auto result = futureWatcher.result();
-						 cv::imshow("center", result.getCenter());
-						 futureWatcher.waitForFinished();
-					 });
+// 	// 按钮点击处理
+// 	QObject::connect(window.button, &QPushButton::clicked, &window,
+// 					 [lfloader, &futureWatcher]() {
+// 						 auto future = lfloader->invoke(&LFLoader::Core::getLF);
+// 						 futureWatcher.setFuture(future);
+// 					 });
 
-	// 按钮点击处理
-	QObject::connect(window.button, &QPushButton::clicked, &window,
-					 [lfloader, &futureWatcher]() {
-						 auto future = lfloader->invoke(&LFLoader::Core::getLF);
-						 futureWatcher.setFuture(future);
-					 });
-
-	QObject::connect(window.thread, &QThread::finished, lfloader,
-					 &LFLoader::Worker::deleteLater, Qt::QueuedConnection);
-	QObject::connect(
-		&window, &WindowBase::destroyed, &window,
-		[&]() {
-			if (lfloader) {
-				delete lfloader;
-				lfloader = nullptr;
-			}
-			if (window.thread) {
-				window.thread->quit(); // 确保线程退出
-				window.thread->wait(); // 等待线程结束
-				delete window.thread;
-				window.thread = nullptr;
-			}
-		},
-		Qt::QueuedConnection);
-	window.show();
-	return app.exec();
-}
+// 	QObject::connect(window.thread, &QThread::finished, lfloader,
+// 					 &LFLoader::Worker_signals::deleteLater,
+// 					 Qt::QueuedConnection);
+// 	QObject::connect(
+// 		&window, &WindowBase::destroyed, &window,
+// 		[&]() {
+// 			window.thread->quit(); // 确保线程退出
+// 			window.thread->wait(); // 等待线程结束
+// 		},
+// 		Qt::QueuedConnection);
+// 	window.show();
+// 	return app.exec();
+// }
 
 int main(int argc, char* argv[]) {
 	int value;
-	value = test_signals(argc, argv);
-	// value = test_template(argc, argv);
+	if (strcmp(argv[3], "0") == 0) {
+		value = test_signals(argc, argv);
+	} else {
+		// value = test_template(argc, argv);
+	}
 
 	return value;
 }

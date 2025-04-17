@@ -1,5 +1,6 @@
 #include "lfrefocuser.h"
 
+#include <QtCore/qlogging.h>
 #include <QtCore/qmetatype.h>
 #include <QtCore/qobject.h>
 #include <QtCore/qobjectdefs.h>
@@ -9,69 +10,56 @@
 #include <QtWidgets/qwidget.h>
 #include <opencv2/core/hal/interface.h>
 
-#include <cmath>
-#include <cstddef>
 #include <memory>
 #include <opencv2/core.hpp>
 #include <opencv2/core/base.hpp>
 #include <opencv2/core/mat.hpp>
+#include <opencv2/core/ocl.hpp> // 确保包含头文件
 #include <opencv2/core/types.hpp>
 #include <opencv2/imgproc.hpp>
 #include <vector>
-namespace LFRefocus {
-Core::Core(const std::vector<cv::Mat>& src) : _isGPU(false) { setLF(src); }
-Core::~Core() {}
-void Core::init(const std::vector<cv::Mat>& src) {
-	_views = _lf.size();
-	_len   = static_cast<int>(std::sqrt(_views));
-	_size  = _lf[0].size();
-	_type  = _lf[0].type();
 
-	_xmap = cv::Mat(_size.height, 1, CV_32FC1);
-	_ymap = cv::Mat(1, _size.width, CV_32FC1);
-	for (int x = 0; x < _size.height; x++) {
+namespace LFRefocus {
+void Core::init(const LightFieldPtr& ptr) {
+	_size	= ptr->data[0].size();
+	_type	= ptr->data[0].type();
+	_center = (1 + ptr->rows) / 2 - 1;
+
+	_xmap = cv::Mat(ptr->height, 1, CV_32FC1);
+	_ymap = cv::Mat(1, ptr->width, CV_32FC1);
+	for (int x = 0; x < ptr->height; x++) {
 		_xmap.at<float>(x, 0) = static_cast<float>(x);
 	}
-	for (int y = 0; y < _size.width; y++) {
+	for (int y = 0; y < ptr->width; y++) {
 		_ymap.at<float>(0, y) = static_cast<float>(y);
 	}
-	_xmap = cv::repeat(_xmap, 1, _size.width);
-	_ymap = cv::repeat(_ymap, _size.height, 1);
+	_xmap = cv::repeat(_xmap, 1, ptr->width);
+	_ymap = cv::repeat(_ymap, ptr->height, 1);
 }
-void Core::setLF(const std::vector<cv::Mat>& src) {
-	_lf = src;
-	if (src.size() == _views && src[0].type() == _type
-		&& src[0].size() == _size) {
-		return;
-	}
-	init(src);
+
+void Core::updateLF(const LightFieldPtr& ptr) {
+	lf = ptr;
+	init(ptr);
 }
 void Core::setGPU(bool isGPU) {
-	if (_isGPU == isGPU) {
-		return; // 状态未变化，无需操作
-	}
-
 	_isGPU = isGPU;
 
 	if (_isGPU) {
-		// GPU 模式：分配并复制数据
-		_lf_gpu = std::make_unique<std::vector<cv::UMat>>(_lf.size());
-		for (size_t i = 0; i < _lf.size(); ++i) {
-			(*_lf_gpu)[i] = _lf[i].getUMat(cv::ACCESS_READ);
-		}
 		_xmap_gpu = _xmap.getUMat(cv::ACCESS_READ);
 		_ymap_gpu = _ymap.getUMat(cv::ACCESS_READ);
 	} else {
-		// CPU 模式：释放 GPU 资源
-		_lf_gpu.reset(); // 自动释放 vector
 		_xmap_gpu.release();
 		_ymap_gpu.release();
 	}
 }
-bool Core::getGPU() { return _isGPU; }
-void Core::refocus(float alpha, int offset) {
+void Core::refocus(float alpha, int crop) {
+	if (lf == nullptr) {
+		qDebug() << "lf is nullptr!\n";
+		return;
+	}
+
 	float	 factor	 = 1.0f - 1.0f / alpha;
-	int		 divisor = (_len - 2 * offset) * (_len - 2 * offset);
+	int		 divisor = (lf->rows - 2 * crop) * (lf->cols - 2 * crop);
 	cv::Mat	 temp, sum, xq, yq;
 	cv::UMat temp_gpu, sum_gpu, xq_gpu, yq_gpu;
 	sum				= cv::Mat(_size, _type, cv::Scalar(0));
@@ -81,79 +69,49 @@ void Core::refocus(float alpha, int offset) {
 		sum_gpu = cv::UMat(_size, _type, cv::Scalar(0));
 	}
 
-	for (int i = 0; i < _lf.size(); i++) {
-		int row = i / _len;
-		int col = i % _len;
-		if (row < offset || col < offset || row >= _len - offset
-			|| col >= _len - offset) {
+	for (int i = 0; i < lf->size; i++) {
+		int row = i / lf->rows;
+		int col = i % lf->cols;
+		if (row < crop || col < crop || row >= lf->rows - crop
+			|| col >= lf->cols - crop) {
 			continue;
 		}
 		if (_isGPU) {
 			cv::add(_ymap_gpu, factor * (col - _center), yq_gpu);
 			cv::add(_xmap_gpu, factor * (row - _center), xq_gpu);
-			cv::remap((*_lf_gpu)[i], temp_gpu, yq_gpu, xq_gpu, cv::INTER_LINEAR,
-					  cv::BORDER_REPLICATE);
+			cv::remap(lf->data_gpu[i], temp_gpu, yq_gpu, xq_gpu,
+					  cv::INTER_LINEAR, cv::BORDER_REPLICATE);
 			cv::add(temp_gpu, sum_gpu, sum_gpu);
 		} else {
 			cv::add(_ymap, factor * (col - _center), yq);
 			cv::add(_xmap, factor * (row - _center), xq);
-			cv::remap(_lf[i], temp, yq, xq, cv::INTER_LINEAR,
+			cv::remap(lf->data[i], temp, yq, xq, cv::INTER_LINEAR,
 					  cv::BORDER_REPLICATE);
 			cv::add(temp, sum, sum);
 		}
 	}
 	if (_isGPU) {
 		cv::divide(sum_gpu, divisor, sum_gpu);
-		_refocusedImage = sum_gpu.getMat(cv::ACCESS_READ);
+		_refocusedImage = sum_gpu.getMat(cv::ACCESS_READ).clone(); // clone
 	} else {
 		cv::divide(sum, divisor, _refocusedImage);
 	}
 }
-Worker::Worker(const std::vector<cv::Mat>& src) : _core(nullptr) {
-	_core = std::make_unique<Core>(src);
+Worker::Worker(QObject* parent) : QObject(parent) {
+	_core = std::make_unique<Core>();
 }
-void Worker::refocus(float alpha, int offset) {
-	auto start = std::chrono::high_resolution_clock::now();
-	_core->refocus(alpha, offset);
-	auto end = std::chrono::high_resolution_clock::now();
-	std::chrono::duration<double> elapsed = end - start;
-	emit operationCompleted("refocus", QVariant::fromValue(elapsed));
-	// emit refocusCompleted(elapsed);
+void Worker::printThreadId() {
+	std::cout << "LFRefocus threadId: " << QThread::currentThreadId()
+			  << " = printThreadId called!" << std::endl;
 }
-void Worker::setGpu(bool enable) {
-	_core->setGPU(enable);
-	emit operationCompleted("setGpu", enable);
+void Worker::setGpu(bool isGPU) { _core->setGPU(isGPU); }
+void Worker::refocus(float alpha, int crop) {
+	_core->refocus(alpha, crop);
+	cv::Mat cvImg, cvImg_float;
+	cvImg_float = _core->getRefocusedImage();
+	cvImg_float.convertTo(cvImg, CV_8UC(cvImg_float.channels()));
+	emit requestUpdateSAI(cvImg);
 }
-
-// getGpu 实现
-bool Worker::getGpu() {
-	bool status = _core->getGPU();
-	emit operationCompleted("getGpu", status);
-	return status;
-}
+void Worker::lfUpdated(const LightFieldPtr& ptr) { _core->updateLF(ptr); }
 
 } // namespace LFRefocus
-
-QLFRefocuser::QLFRefocuser(const std::vector<cv::Mat>& src, QObject* parent)
-	: QObject(parent), _thread(nullptr), _worker(nullptr) {
-	_worker = new LFRefocus::Worker(src);
-	_thread = new QThread(this);
-	_worker->moveToThread(_thread);
-	_thread->start();
-
-	connect(_worker, &LFRefocus::Worker::operationCompleted, this,
-			&QLFRefocuser::resultReady);
-	qRegisterMetaType<QVariant>("QVariant");
-}
-QLFRefocuser::~QLFRefocuser() {
-	if (_thread) {
-		_thread->quit();
-		_thread->wait();
-		delete _thread;
-		_thread = nullptr;
-	}
-	if (_worker) {
-		delete _worker;
-		_worker = nullptr;
-	}
-}
