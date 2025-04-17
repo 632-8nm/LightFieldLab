@@ -22,29 +22,29 @@ int main(int argc, char *argv[]) {
 	QApplication app(argc, argv);
 	WindowBase	 window;
 
-	std::string path(argv[1]);
-	bool		isRGB = strcmp(argv[2], "1") == 0 ? true : false;
+	// std::string path(argv[1]);
+	// bool		isRGB = strcmp(argv[2], "1") == 0 ? true : false;
 
-	window.worker		= new LFProcessor();
-	QThread *lfp_thread = new QThread();
+	// window.worker		= new LFProcessor();
+	// QThread *lfp_thread = new QThread();
 
-	window.worker->moveToThread(lfp_thread);
-	QObject::connect(lfp_thread, &QThread::started, window.worker,
-					 &LFProcessor::init_loader, Qt::QueuedConnection);
-	lfp_thread->start();
+	// window.worker->moveToThread(lfp_thread);
+	// QObject::connect(lfp_thread, &QThread::started, window.worker,
+	// 				 &LFProcessor::init_loader, Qt::QueuedConnection);
+	// lfp_thread->start();
 
 	// qDebug() << "Main thread:" << window.thread;
 	// qDebug() << "LFProcessor thread:" << window.worker->thread();
 	// qDebug() << "LFLoader thread:" << window.worker->loader->thread();
 
 	// qDebug() << "Main threadId:" << QThread::currentThreadId();
-	QObject::connect(
-		window.button, &QPushButton::clicked, window.worker->loader,
-		[worker = window.worker, path, isRGB]() {
-			std::cout << "LFProcessor threadId: " << QThread::currentThreadId()
-					  << std::endl;
-			worker->loader->load(path, isRGB);
-		});
+	// QObject::connect(
+	// 	window.button, &QPushButton::clicked, window.worker->loader,
+	// 	[worker = window.worker, path, isRGB]() {
+	// 		std::cout << "LFProcessor threadId: " << QThread::currentThreadId()
+	// 				  << std::endl;
+	// 		worker->loader->load(path, isRGB);
+	// 	});
 	// std::cout << "Main thread: " << QThread::currentThreadId() << std::endl;
 	// QObject::connect(
 	// 	window.button, &QPushButton::clicked, window.worker,

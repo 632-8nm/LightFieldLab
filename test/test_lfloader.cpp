@@ -1,10 +1,12 @@
 #include <QtCore/qobject.h>
+#include <QtCore/qstring.h>
 #include <QtCore/qthread.h>
 #include <QtWidgets/qpushbutton.h>
 
 #include <QApplication>
 #include <QFutureWatcher>
 #include <QMainWindow>
+#include <QString>
 #include <cstring>
 #include <iostream>
 #include <opencv2/core/mat.hpp>
@@ -23,15 +25,16 @@ int test_signals(int argc, char* argv[]) {
 	std::cout << "Main thread: " << QThread::currentThreadId() << std::endl;
 
 	LFLoader::Worker* lfloader = new LFLoader::Worker();
-	std::string		  path(argv[1]);
-	bool			  isRGB = strcmp(argv[2], "1") == 0 ? true : false;
+	QString			  path(argv[1]);
+	// std::string		  path(argv[1]);
+	bool isRGB = strcmp(argv[2], "1") == 0 ? true : false;
 
 	lfloader->moveToThread(window.thread);
 	QObject::connect(window.thread, &QThread::finished, lfloader,
 					 &LFLoader::Worker::deleteLater, Qt::QueuedConnection);
 	QObject::connect(
 		window.thread, &QThread::started, lfloader,
-		[&]() { lfloader->load(path, isRGB); }, Qt::QueuedConnection);
+		[&]() { lfloader->load(QString(path), isRGB); }, Qt::QueuedConnection);
 	window.thread->start();
 
 	QObject::connect(window.button, &QPushButton::clicked, lfloader,
@@ -40,9 +43,9 @@ int test_signals(int argc, char* argv[]) {
 		window.button, &QPushButton::clicked, lfloader,
 		[&]() { lfloader->getLF(); }, Qt::QueuedConnection);
 	QObject::connect(
-		lfloader, &LFLoader::Worker::sendLF, &window,
-		[&](const LightField& lf) {
-			cv::imshow("image", lf.getCenter());
+		lfloader, &LFLoader::Worker::lfUpdated, &window,
+		[&](const LightFieldPtr& ptr) {
+			cv::imshow("image", ptr->getCenter());
 			cv::waitKey();
 		},
 		Qt::QueuedConnection);
