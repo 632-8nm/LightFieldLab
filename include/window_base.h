@@ -1,22 +1,18 @@
 #ifndef WINDOW_BASE_H
 #define WINDOW_BASE_H
-#include <QtCore/qthread.h>
-#include <QtCore/qtmetamacros.h>
-
 #include <QCloseEvent>
 #include <QMainWindow>
 #include <QObject>
 #include <QPushButton>
 #include <QThread>
 #include <QVBoxLayout>
-#include <cstddef>
 
 #include "lfprocessor.h"
 
 // template <typename Worker>
 class WindowBase : public QMainWindow {
 	Q_OBJECT
-   public:
+public:
 	WindowBase(QWidget* parent = nullptr) : QMainWindow(parent) {
 		QWidget*	 centralWidget = new QWidget(this);
 		QVBoxLayout* layout		   = new QVBoxLayout(centralWidget);

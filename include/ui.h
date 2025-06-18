@@ -1,6 +1,10 @@
 #ifndef UI_H
 #define UI_H
 
+#include <QtWidgets/qcombobox.h>
+#include <QtWidgets/qpushbutton.h>
+
+#include <QComboBox>
 #include <QDoubleSpinBox>
 #include <QFileDialog>
 #include <QGroupBox>
@@ -18,7 +22,7 @@
 namespace Ui {
 class MainWindow : public QMainWindow {
 	Q_OBJECT
-   public:
+public:
 	void setupUi(QMainWindow* mainWindow);
 
 	// 1
@@ -33,19 +37,26 @@ class MainWindow : public QMainWindow {
 	QLineEdit*	  lensletPathEdit;
 	QLineEdit*	  whitePathEdit;
 
+	// views
 	QSlider*  verticalSlider;
 	QSlider*  horizontalSlider;
 	QSpinBox* verticalSpinBox;
 	QSpinBox* horizontalSpinBox;
 
+	// refocus
 	QSlider*		cropSlider;
 	QSpinBox*		cropSpinBox;
 	QSlider*		alphaSlider;
 	QDoubleSpinBox* alphaSpinBox;
 
+	// super_resolution
+	QComboBox*	 typeComboBox;
+	QComboBox*	 scaleComboBox;
+	QPushButton* SRButton;
+
 	QLabel* rightPanel;
 
-   private:
+private:
 	QGroupBox* setupModeGroup();
 	QGroupBox* setupViewsGroup();
 	QGroupBox* setupRefocusGroup();

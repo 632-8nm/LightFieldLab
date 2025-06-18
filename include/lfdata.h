@@ -11,7 +11,7 @@
 #include <vector>
 
 class LightField {
-   public:
+public:
 	explicit LightField() {}
 	explicit LightField(const std::vector<cv::Mat>& src) {
 		data.reserve(src.size());
@@ -61,7 +61,7 @@ class LightField {
 	}
 	void toGpu() {
 		if (data.empty()) {
-			qDebug() << "Data in gpu is empty!\n";
+			qDebug() << "Data in cpu is empty!\n";
 			return;
 		}
 		if (!data_gpu.empty()) {
@@ -88,7 +88,7 @@ class LightField {
 		type	 = data[0].type();
 	}
 
-   private:
+private:
 	void validate(const std::vector<cv::Mat>& src) {
 		if (src.empty()) {
 			throw std::invalid_argument(
@@ -114,9 +114,15 @@ class LightField {
 		type	 = src[0].type();
 	}
 
-   public:
-	int size = 0, rows = 0, cols = 0, height = 0, width = 0, channels = 0,
-		type = 0;
+public:
+	int size	 = 0;
+	int rows	 = 0;
+	int cols	 = 0;
+	int height	 = 0;
+	int width	 = 0;
+	int channels = 0;
+	int type	 = 0;
+
 	std::vector<cv::Mat>  data;
 	std::vector<cv::UMat> data_gpu;
 };

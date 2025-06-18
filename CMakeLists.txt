@@ -41,52 +41,51 @@ set(PROJECT_SOURCES
     src/mainwindow.cpp
     src/ui.cpp
     src/lfprocessor.cpp
-    src/lfloader.cpp
-    src/lfrefocuser.cpp
+    src/lfload.cpp
+    src/lfrefocus.cpp
+    src/lfsuperres.cpp
     include/mainwindow.h
     include/ui.h
     include/lfdata.h
     include/lfprocessor.h
-    include/lfloader.h
-    include/lfrefocuser.h
+    include/lfload.h
+    include/lfrefocus.h
+    include/lfsuperres.h
 )
 set(BIN_NAME "lightfieldlab")
-qt_add_executable(${BIN_NAME}
-    MANUAL_FINALIZATION
-    ${PROJECT_SOURCES}
-)
-
+add_executable(${BIN_NAME} ${PROJECT_SOURCES})
 target_include_directories(${BIN_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/include)
-target_link_libraries(${BIN_NAME} PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
-target_link_libraries(${BIN_NAME} PRIVATE ${OpenCV_LIBS})
+target_link_libraries(${BIN_NAME} PRIVATE
+    Qt${QT_VERSION_MAJOR}::Widgets
+    ${OpenCV_LIBS}
+    opencv_dnn_superres
+)
 
 # set(BUNDLE_PATH "${CMAKE_INSTALL_PREFIX}/lightfieldlab.app")
 # set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 # set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
 # set(CMAKE_INSTALL_RPATH "@executable_path/../lib")
 
-set_target_properties(${BIN_NAME} PROPERTIES
-    ${BUNDLE_ID_OPTION}
-    MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
-    MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
-    MACOSX_BUNDLE TRUE
-    WIN32_EXECUTABLE TRUE
-)
+# set_target_properties(${BIN_NAME} PROPERTIES
+#     ${BUNDLE_ID_OPTION}
+#     MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
+#     MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
+#     MACOSX_BUNDLE TRUE
+#     WIN32_EXECUTABLE TRUE
+# )
 
-include(GNUInstallDirs)
-install(TARGETS ${BIN_NAME}
-    BUNDLE DESTINATION ${CMAKE_INSTALL_PREFIX}
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-)
+# include(GNUInstallDirs)
+# install(TARGETS ${BIN_NAME}
+#     BUNDLE DESTINATION ${CMAKE_INSTALL_PREFIX}
+#     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+#     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+# )
 file(COPY "${CMAKE_SOURCE_DIR}/data" DESTINATION "${CMAKE_BINARY_DIR}")
 
 
 # if(${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
 #     install(SCRIPT "${PROJECT_SOURCE_DIR}/install.cmake")
 # endif()
-qt_finalize_executable(${BIN_NAME})
-
 
 # info output 
 message(STATUS "===============================================================")

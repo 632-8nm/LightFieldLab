@@ -3,6 +3,7 @@
 #include <QtCore/qnamespace.h>
 #include <QtWidgets/qboxlayout.h>
 #include <QtWidgets/qlabel.h>
+#include <QtWidgets/qpushbutton.h>
 #include <QtWidgets/qslider.h>
 
 #include <QButtonGroup>
@@ -65,8 +66,8 @@ QGroupBox *MainWindow::setupModeGroup() {
 
 	// 1. static/dynamic
 	QVBoxLayout *captureLayout		= new QVBoxLayout();
-	QLabel		*staticLabel		= new QLabel("static");
-	QLabel		*dynamicLabel		= new QLabel("dynamic");
+	QLabel		*staticLabel		= new QLabel("静态");
+	QLabel		*dynamicLabel		= new QLabel("动态");
 	QHBoxLayout *captureLabelLayout = new QHBoxLayout();
 	captureLabelLayout->addWidget(staticLabel);
 	captureLabelLayout->addWidget(dynamicLabel);
@@ -85,7 +86,7 @@ QGroupBox *MainWindow::setupModeGroup() {
 	colorLabelLayout->addWidget(rgbLabel);
 	colorSlider = new QSlider(Qt::Horizontal);
 	colorSlider->setRange(0, 1);
-	colorSlider->setValue(0);
+	colorSlider->setValue(1);
 	colorLayout->addLayout(colorLabelLayout);
 	colorLayout->addWidget(colorSlider);
 
@@ -127,7 +128,8 @@ QGroupBox *MainWindow::setupModeGroup() {
 	whiteLayout->addWidget(whiteBrowseBtn);
 
 	QHBoxLayout *lensletLayout = new QHBoxLayout();
-	lensletPathEdit			   = new QLineEdit();
+	lensletPathEdit =
+		new QLineEdit("/Users/jax/code/LightFieldLab/build/data/toy");
 	lensletPathEdit->setPlaceholderText("微透镜图像路径");
 	lensletBrowseBtn = new QPushButton("...");
 	lensletBrowseBtn->setFixedWidth(30);
@@ -208,7 +210,6 @@ QGroupBox *MainWindow::setupViewsGroup() {
 	layout->addWidget(horizontalLabel);
 	layout->addLayout(horizontalLayout);
 	group->setLayout(layout);
-	// TODO: 值传递给LFP
 	connect(verticalSlider, &QSlider::valueChanged, verticalSpinBox,
 			[=](int value) { verticalSpinBox->setValue(value); });
 	connect(verticalSpinBox, QOverload<int>::of(&QSpinBox::valueChanged),
@@ -277,8 +278,27 @@ QGroupBox *MainWindow::setupRefocusGroup() {
 // 4. 超分辨组
 QGroupBox *MainWindow::setupSRGroup() {
 	QGroupBox	*group	= new QGroupBox("超分辨");
-	QVBoxLayout *layout = new QVBoxLayout();
+	QHBoxLayout *layout = new QHBoxLayout();
 	group->setLayout(layout);
+
+	typeComboBox = new QComboBox(group);
+	typeComboBox->addItem("Nearest", 0);
+	typeComboBox->addItem("Linear", 1);
+	typeComboBox->addItem("Cubic", 2);
+	typeComboBox->addItem("Lanczos", 3);
+	typeComboBox->addItem("EDSR", 4);
+	typeComboBox->addItem("ESPCN", 5);
+	typeComboBox->addItem("FSRCNN", 6);
+	layout->addWidget(typeComboBox);
+
+	scaleComboBox = new QComboBox(group);
+	scaleComboBox->addItem("2x", 2);
+	scaleComboBox->addItem("3x", 3);
+	scaleComboBox->addItem("4x", 4);
+	layout->addWidget(scaleComboBox);
+
+	SRButton = new QPushButton("设置", group);
+	layout->addWidget(SRButton);
 
 	return group;
 }
