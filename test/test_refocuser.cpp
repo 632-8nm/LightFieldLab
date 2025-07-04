@@ -1,10 +1,5 @@
-#include <QtCore/qtimer.h>
-#include <QtCore/qvariant.h>
-#include <QtWidgets/qapplication.h>
-#include <QtWidgets/qboxlayout.h>
-#include <QtWidgets/qlabel.h>
-#include <QtWidgets/qpushbutton.h>
-#include <opencv2/core/hal/interface.h>
+#include "lfload.h"
+#include "lfrefocus.h"
 
 #include <QApplication>
 #include <QLabel>
@@ -13,16 +8,19 @@
 #include <QThread>
 #include <QTimer>
 #include <QVBoxLayout>
+#include <QtCore/qtimer.h>
+#include <QtCore/qvariant.h>
+#include <QtWidgets/qapplication.h>
+#include <QtWidgets/qboxlayout.h>
+#include <QtWidgets/qlabel.h>
+#include <QtWidgets/qpushbutton.h>
 #include <chrono>
 #include <cstring>
-#include <iostream>
+#include <opencv2/core/hal/interface.h>
 #include <opencv2/highgui.hpp>
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/opencv.hpp>
 #include <vector>
-
-#include "lfload.h"
-#include "lfrefocus.h"
 // class Window : public QMainWindow {
 // 	// Q_OBJECT
 //    public:

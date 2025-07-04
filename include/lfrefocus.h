@@ -1,10 +1,6 @@
 #ifndef LFREFOCUS_H
 #define LFREFOCUS_H
 
-#include <QObject>
-#include <QThread>
-#include <opencv2/opencv.hpp>
-
 #include "lfdata.h"
 
 class LFRefocus : public QObject {
@@ -25,9 +21,9 @@ signals:
 	void finished(const cv::Mat& image);
 
 private:
-	bool	 _isGpu = false;
-	int		 _views, _len, _center, _type;
-	cv::Mat	 _xmap, _ymap, _refocusedImage;
+	bool _isGpu = false;
+	int _views, _len, _center, _type;
+	cv::Mat _xmap, _ymap, _refocusedImage;
 	cv::UMat _xmap_gpu, _ymap_gpu;
 	cv::Size _size;
 };

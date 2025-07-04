@@ -1,15 +1,6 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include <QGroupBox>
-#include <QLabel>
-#include <QMainWindow>
-#include <QPushButton>
-#include <QRadioButton>
-#include <QStackedWidget>
-#include <QThread>
-#include <opencv2/opencv.hpp>
-
 #include "lfdata.h"
 #include "lfprocessor.h"
 #include "ui.h"
@@ -34,7 +25,7 @@ public slots:
 
 private:
 	Ui::MainWindow* ui;
-	LFProcessor*	lfp;
-	QThread*		lfp_thread;
+	LFProcessor* lfp;
+	QThread* lfp_thread;
 };
 #endif // MAINWINDOW_H

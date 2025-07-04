@@ -1,18 +1,9 @@
 #ifndef LFDATA_H
 #define LFDATA_H
 
-#include <QtCore/qlogging.h>
-#include <opencv2/core/hal/interface.h>
-
-#include <QDebug>
-#include <cmath>
-#include <opencv2/core/mat.hpp>
-#include <opencv2/opencv.hpp>
-#include <vector>
-
 class LightField {
 public:
-	explicit LightField() {}
+	explicit LightField() = default;
 	explicit LightField(const std::vector<cv::Mat>& src) {
 		data.reserve(src.size());
 		for (const auto& mat : src) {
@@ -54,10 +45,10 @@ public:
 	}
 	cv::Mat getSAI(int row, int col) const { return data[row * rows + col]; }
 	cv::Mat getCenter() const { return data[(1 + size) / 2 - 1]; }
-	bool	empty() const { return data.empty(); }
-	void	clear() {
-		   data.clear();
-		   data_gpu.clear();
+	bool empty() const { return data.empty(); }
+	void clear() {
+		data.clear();
+		data_gpu.clear();
 	}
 	void toGpu() {
 		if (data.empty()) {
@@ -79,13 +70,13 @@ public:
 		}
 	}
 	void setParam() {
-		size	 = data.size();
-		rows	 = static_cast<int>(std::sqrt(data.size()));
-		cols	 = rows;
-		height	 = data[0].rows;
-		width	 = data[0].cols;
+		size = data.size();
+		rows = static_cast<int>(std::sqrt(data.size()));
+		cols = rows;
+		height = data[0].rows;
+		width = data[0].cols;
 		channels = data[0].channels();
-		type	 = data[0].type();
+		type = data[0].type();
 	}
 
 private:
@@ -105,25 +96,25 @@ private:
 		}
 	}
 	void setParam(const std::vector<cv::Mat>& src) {
-		size	 = src.size();
-		rows	 = static_cast<int>(std::sqrt(src.size()));
-		cols	 = rows;
-		height	 = src[0].rows;
-		width	 = src[0].cols;
+		size = src.size();
+		rows = static_cast<int>(std::sqrt(src.size()));
+		cols = rows;
+		height = src[0].rows;
+		width = src[0].cols;
 		channels = src[0].channels();
-		type	 = src[0].type();
+		type = src[0].type();
 	}
 
 public:
-	int size	 = 0;
-	int rows	 = 0;
-	int cols	 = 0;
-	int height	 = 0;
-	int width	 = 0;
+	int size = 0;
+	int rows = 0;
+	int cols = 0;
+	int height = 0;
+	int width = 0;
 	int channels = 0;
-	int type	 = 0;
+	int type = 0;
 
-	std::vector<cv::Mat>  data;
+	std::vector<cv::Mat> data;
 	std::vector<cv::UMat> data_gpu;
 };
 using LightFieldPtr = std::shared_ptr<LightField>;

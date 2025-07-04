@@ -1,10 +1,6 @@
 #ifndef LFPROCESSOR_H
 #define LFPROCESSOR_H
 
-#include <QObject>
-#include <QString>
-#include <QThread>
-
 #include "lfdata.h"
 #include "lfload.h"
 #include "lfrefocus.h"
@@ -14,8 +10,8 @@ class LFProcessor : public QObject {
 	Q_OBJECT
 public:
 	enum WorkerType {
-		LOAD	 = 0,
-		REFOCUS	 = 1,
+		LOAD = 0,
+		REFOCUS = 1,
 		SUPERRES = 2, // 示例：可扩展其他类型
 		// DEPTH_ESTIMATION,
 		WORKER_COUNT // 自动计数
@@ -27,17 +23,17 @@ public:
 	template <typename T>
 	T* initWorker(WorkerType type);
 
-	cv::Mat		  sai;
+	cv::Mat sai;
 	LightFieldPtr lf, lf_float;
-	QString		  lensletImagePath, whiteImagePath;
-	bool		  isRgb = false, isGpu = false;
-	int			  sai_row = 8, sai_col = 8, crop = 0;
-	float		  alpha = 1.0;
+	QString lensletImagePath, whiteImagePath;
+	bool isRgb = false, isGpu = false;
+	int sai_row = 8, sai_col = 8, crop = 0;
+	float alpha = 1.0;
 
-	LFLoad*		pLoad;
-	LFRefocus*	pRefocus;
+	LFLoad* pLoad;
+	LFRefocus* pRefocus;
 	LFSuperres* pSuperres;
-	QThread*	threads[WORKER_COUNT];
+	QThread* threads[WORKER_COUNT];
 
 public slots:
 	void printThreadId();

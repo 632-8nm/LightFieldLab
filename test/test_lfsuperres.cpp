@@ -10,10 +10,10 @@ int main() {
 	std::cout << cv::getVersionString() << std::endl;
 	cv::dnn_superres::DnnSuperResImpl sr;
 	sr.readModel(
-		"/Users/jax/code/LightFieldLab/data/opencv_srmodel/FSRCNN_x2.pb");
+		"/Users/jax/code/LightFieldLab/input/opencv_srmodel/FSRCNN_x2.pb");
 	sr.setModel("fsrcnn", 2);
 	cv::Mat input =
-		cv::imread("/Users/jax/code/LightFieldLab/data/toy/input_Cam112.png",
+		cv::imread("/Users/jax/code/LightFieldLab/input/toy/input_Cam112.png",
 				   cv::IMREAD_COLOR);
 	cv::Mat output;
 

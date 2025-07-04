@@ -1,12 +1,6 @@
 #ifndef LFSUPERRES_H
 #define LFSUPERRES_H
 
-#include <QMutex>
-#include <QObject>
-#include <opencv2/dnn_superres.hpp>
-#include <opencv2/opencv.hpp>
-#include <string>
-
 #include "lfdata.h"
 
 class LFSuperres : public QObject {
@@ -15,17 +9,17 @@ public:
 	explicit LFSuperres(QObject *parent = nullptr);
 	enum SR_type {
 		NEAREST = 0,
-		LINEAR	= 1,
-		CUBIC	= 2,
+		LINEAR = 1,
+		CUBIC = 2,
 		LANCZOS = 3,
-		EDSR	= 4,
-		ESPCN	= 5,
-		FSRCNN	= 6,
+		EDSR = 4,
+		ESPCN = 5,
+		FSRCNN = 6,
 		TYPE_COUNT
 	};
 	SR_type type() const { return _type; }
-	double	scale() const { return _scale; }
-	void	setGpu(bool isGpu);
+	double scale() const { return _scale; }
+	void setGpu(bool isGpu);
 
 	LightFieldPtr lf, lf_float;
 
@@ -43,15 +37,15 @@ signals:
 	void finished(const cv::Mat &image);
 
 private:
-	bool   _isGpu = false;
+	bool _isGpu = false;
 	double _scale = 2.0;
 
 	SR_type _type = NEAREST;
 
-	cv::Mat		_data;
-	cv::Mat		_input, _output;
-	cv::UMat	_input_gpu, _output_gpu;
-	std::string _modelPath = "data/opencv_srmodel/";
+	cv::Mat _data;
+	cv::Mat _input, _output;
+	cv::UMat _input_gpu, _output_gpu;
+	std::string _modelPath = "input/opencv_srmodel/";
 
 	cv::dnn_superres::DnnSuperResImpl _sr;
 };

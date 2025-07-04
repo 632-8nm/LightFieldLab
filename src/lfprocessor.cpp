@@ -1,21 +1,5 @@
 #include "lfprocessor.h"
 
-#include <QtCore/qlogging.h>
-#include <QtCore/qnamespace.h>
-#include <opencv2/core/hal/interface.h>
-
-#include <QMetaMethod>
-#include <QMetaObject>
-#include <QObject>
-#include <QString>
-#include <QThread>
-#include <memory>
-#include <opencv2/core/mat.hpp>
-#include <opencv2/core/matx.hpp>
-#include <opencv2/core/persistence.hpp>
-#include <opencv2/highgui.hpp>
-#include <opencv2/imgcodecs.hpp>
-
 #include "lfdata.h"
 #include "lfload.h"
 #include "lfrefocus.h"
@@ -24,8 +8,8 @@
 LFProcessor::LFProcessor(QObject* parent) : QObject(parent) {
 	memset(threads, 0, sizeof(threads));
 
-	pLoad	  = initWorker<LFLoad>(LOAD);
-	pRefocus  = initWorker<LFRefocus>(REFOCUS);
+	pLoad = initWorker<LFLoad>(LOAD);
+	pRefocus = initWorker<LFRefocus>(REFOCUS);
 	pSuperres = initWorker<LFSuperres>(SUPERRES);
 
 	connect(pLoad, &LFLoad::finished, this, &LFProcessor::onLFUpdated,
@@ -62,7 +46,7 @@ void LFProcessor::printThreadId() {
 }
 template <typename T>
 T* LFProcessor::initWorker(WorkerType type) {
-	T* worker	  = new T();
+	T* worker = new T();
 	threads[type] = new QThread(this);
 
 	worker->moveToThread(threads[type]);
@@ -88,13 +72,13 @@ void LFProcessor::onLFUpdated(const LightFieldPtr& ptr) {
 		lf_float.reset();
 	}
 
-	lf		 = ptr;
+	lf = ptr;
 	lf_float = std::make_shared<LightField>(*ptr);
 	lf_float->toFloat();
 
 	sai_row = (1 + ptr->rows) / 2 - 1;
 	sai_col = (1 + ptr->cols) / 2 - 1;
-	sai		= lf->getSAI(sai_row, sai_col);
+	sai = lf->getSAI(sai_row, sai_col);
 	emit updateSAI(sai);
 	// emit updateLF_uchar(lf);
 	emit updateLF_float(lf_float);

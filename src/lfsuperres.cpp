@@ -1,18 +1,5 @@
 #include "lfsuperres.h"
 
-#include <QtCore/qlogging.h>
-#include <opencv2/core/hal/interface.h>
-
-#include <QDebug>
-#include <QThread>
-#include <algorithm>
-#include <cctype>
-#include <chrono>
-#include <opencv2/core/mat.hpp>
-#include <opencv2/opencv.hpp>
-#include <ratio>
-#include <string>
-
 LFSuperres::LFSuperres(QObject *parent) : QObject(parent) {}
 void LFSuperres::setType(int index) {
 	_type = static_cast<SR_type>(index);
@@ -32,7 +19,7 @@ void LFSuperres::setScale(int index) {
 }
 void LFSuperres::setGpu(bool isGpu) { _isGpu = isGpu; }
 void LFSuperres::loadModel() {
-	int			scale_int = static_cast<int>(_scale);
+	int scale_int = static_cast<int>(_scale);
 	std::string name;
 	std::string suffix = "_x" + std::to_string(scale_int) + ".pb";
 	switch (static_cast<int>(_type)) {
@@ -57,7 +44,7 @@ void LFSuperres::loadModel() {
 void LFSuperres::onUpdateLF(const LightFieldPtr &ptr) { lf_float = ptr; }
 void LFSuperres::upsample_single(const cv::Mat &src) {
 	cv::Mat result;
-	auto	start = std::chrono::high_resolution_clock::now();
+	auto start = std::chrono::high_resolution_clock::now();
 	if (_type < 4) {
 		int type = _type == LANCZOS ? cv::INTER_LANCZOS4 : _type;
 		cv::resize(src, result, cv::Size(), _scale, _scale, type);

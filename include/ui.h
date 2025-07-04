@@ -1,24 +1,6 @@
 #ifndef UI_H
 #define UI_H
 
-#include <QtWidgets/qcombobox.h>
-#include <QtWidgets/qpushbutton.h>
-
-#include <QComboBox>
-#include <QDoubleSpinBox>
-#include <QFileDialog>
-#include <QGroupBox>
-#include <QHBoxLayout>
-#include <QLabel>
-#include <QMainWindow>
-#include <QObject>
-#include <QPushButton>
-#include <QRadioButton>
-#include <QSlider>
-#include <QSpinBox>
-#include <QVBoxLayout>
-#include <QWidget>
-
 namespace Ui {
 class MainWindow : public QMainWindow {
 	Q_OBJECT
@@ -32,26 +14,26 @@ public:
 	QRadioButton* dynamicMode;
 	QRadioButton* grayMode;
 	QRadioButton* rgbMode;
-	QPushButton*  lensletBrowseBtn;
-	QPushButton*  whiteBrowseBtn;
-	QLineEdit*	  lensletPathEdit;
-	QLineEdit*	  whitePathEdit;
+	QPushButton* lensletBrowseBtn;
+	QPushButton* whiteBrowseBtn;
+	QLineEdit* lensletPathEdit;
+	QLineEdit* whitePathEdit;
 
 	// views
-	QSlider*  verticalSlider;
-	QSlider*  horizontalSlider;
+	QSlider* verticalSlider;
+	QSlider* horizontalSlider;
 	QSpinBox* verticalSpinBox;
 	QSpinBox* horizontalSpinBox;
 
 	// refocus
-	QSlider*		cropSlider;
-	QSpinBox*		cropSpinBox;
-	QSlider*		alphaSlider;
+	QSlider* cropSlider;
+	QSpinBox* cropSpinBox;
+	QSlider* alphaSlider;
 	QDoubleSpinBox* alphaSpinBox;
 
 	// super_resolution
-	QComboBox*	 typeComboBox;
-	QComboBox*	 scaleComboBox;
+	QComboBox* typeComboBox;
+	QComboBox* scaleComboBox;
 	QPushButton* SRButton;
 
 	QLabel* rightPanel;

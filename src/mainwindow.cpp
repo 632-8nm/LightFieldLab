@@ -1,33 +1,5 @@
 #include "mainwindow.h"
 
-#include <QtCore/qlogging.h>
-#include <QtCore/qnamespace.h>
-#include <QtGui/qimage.h>
-#include <QtGui/qwindowdefs.h>
-#include <QtWidgets/qcombobox.h>
-#include <QtWidgets/qmainwindow.h>
-#include <opencv2/core/hal/interface.h>
-
-#include <QDoubleSpinBox>
-#include <QFileDialog>
-#include <QGroupBox>
-#include <QHBoxLayout>
-#include <QImage>
-#include <QLineEdit>
-#include <QMetaMethod>
-#include <QMetaObject>
-#include <QPixmap>
-#include <QPushButton>
-#include <QSlider>
-#include <QString>
-#include <QThread>
-#include <QVBoxLayout>
-#include <iostream>
-#include <memory>
-#include <opencv2/core/mat.hpp>
-#include <opencv2/highgui.hpp>
-#include <ostream>
-
 #include "lfdata.h"
 #include "lfload.h"
 #include "lfprocessor.h"
@@ -42,7 +14,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
 	ui = new Ui::MainWindow();
 	ui->setupUi(this);
 	// lfp
-	lfp		   = new LFProcessor();
+	lfp = new LFProcessor();
 	lfp_thread = new QThread();
 	lfp->moveToThread(lfp_thread);
 	connect(lfp_thread, &QThread::started, lfp, &LFProcessor::printThreadId);
@@ -116,7 +88,7 @@ void MainWindow::onLensletBrowseBtn() {
 		return;
 	}
 	lfp->lensletImagePath = this->ui->lensletPathEdit->text();
-	lfp->isRgb			  = this->ui->colorSlider->value() ? true : false;
+	lfp->isRgb = this->ui->colorSlider->value() ? true : false;
 	qDebug() << lfp->lensletImagePath;
 	QMetaObject::invokeMethod(lfp->pLoad, "load", Qt::QueuedConnection,
 							  Q_ARG(QString, lfp->lensletImagePath),

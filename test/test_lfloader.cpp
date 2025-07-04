@@ -1,4 +1,6 @@
-#include <QtWidgets/qpushbutton.h>
+#include "lfdata.h"
+#include "lfload.h"
+#include "window_base.h"
 
 #include <QApplication>
 #include <QFutureWatcher>
@@ -6,16 +8,12 @@
 #include <QObject>
 #include <QString>
 #include <QThread>
+#include <QtWidgets/qpushbutton.h>
 #include <cstring>
-#include <iostream>
 #include <opencv2/core/mat.hpp>
 #include <opencv2/highgui.hpp>
 #include <opencv2/opencv.hpp>
 #include <ostream>
-
-#include "lfdata.h"
-#include "lfload.h"
-#include "window_base.h"
 int test_signals(int argc, char* argv[]) {
 	QApplication app(argc, argv);
 	WindowBase	 window;

@@ -1,13 +1,5 @@
 #include "lfrefocus.h"
 
-#include <QObject>
-#include <QThread>
-#include <QVariant>
-#include <QWidget>
-#include <memory>
-#include <opencv2/opencv.hpp>
-#include <vector>
-
 LFRefocus::LFRefocus(QObject* parent) : QObject(parent) {}
 void LFRefocus::printThreadId() {
 	std::cout << "LFRefocus threadId: " << QThread::currentThreadId()
@@ -17,8 +9,8 @@ void LFRefocus::init(const LightFieldPtr& ptr) {
 	if (ptr->data[0].size() == _size && ptr->data[0].type() == _type) {
 		return;
 	}
-	_size	= ptr->data[0].size();
-	_type	= ptr->data[0].type();
+	_size = ptr->data[0].size();
+	_type = ptr->data[0].type();
 	_center = (1 + ptr->rows) / 2 - 1;
 
 	_xmap = cv::Mat(ptr->height, 1, CV_32FC1);
@@ -56,11 +48,11 @@ void LFRefocus::refocus(float alpha, int crop) {
 	}
 	auto start = std::chrono::high_resolution_clock::now();
 
-	float	 factor	 = 1.0f - 1.0f / alpha;
-	int		 divisor = (lf->rows - 2 * crop) * (lf->cols - 2 * crop);
-	cv::Mat	 temp, sum, xq, yq;
+	float factor = 1.0f - 1.0f / alpha;
+	int divisor = (lf->rows - 2 * crop) * (lf->cols - 2 * crop);
+	cv::Mat temp, sum, xq, yq;
 	cv::UMat temp_gpu, sum_gpu, xq_gpu, yq_gpu;
-	sum				= cv::Mat(_size, _type, cv::Scalar(0));
+	sum = cv::Mat(_size, _type, cv::Scalar(0));
 	_refocusedImage = cv::Mat(_size, _type, cv::Scalar(0)); // 清除结果
 
 	if (_isGpu) {

@@ -1,16 +1,5 @@
 #include "lfload.h"
 
-#include <QtWidgets/qwidget.h>
-
-#include <algorithm>
-#include <chrono>
-#include <filesystem>
-#include <future> // std::async, std::future
-#include <iostream>
-#include <mutex> // std::mutex, std::lock_guard
-#include <opencv2/opencv.hpp>
-#include <vector>
-
 #include "lfdata.h"
 
 LFLoad::LFLoad(QObject* parent) : QObject(parent) {}
@@ -19,8 +8,6 @@ void LFLoad::printThreadId() {
 }
 void LFLoad::load(const QString& path_, bool isRGB) {
 	std::string path = path_.toStdString();
-	// if (!lf.empty())
-	// 	lf.clear();
 
 	auto start = std::chrono::high_resolution_clock::now();
 
@@ -35,7 +22,7 @@ void LFLoad::load(const QString& path_, bool isRGB) {
 
 	// 提前分配空间
 	std::vector<cv::Mat> temp(filenames.size());
-	std::mutex			 mtx;
+	std::mutex mtx;
 
 	// 使用 futures 来管理异步任务
 	std::vector<std::future<void>> futures;
@@ -44,7 +31,7 @@ void LFLoad::load(const QString& path_, bool isRGB) {
 	for (size_t i = 0; i < filenames.size(); ++i) {
 		futures.push_back(std::async(std::launch::async, [&, i, isRGB, path]() {
 			std::string filename = path + "/" + filenames[i];
-			cv::Mat		img;
+			cv::Mat img;
 			if (isRGB) {
 				img = cv::imread(filename, cv::IMREAD_COLOR);
 			} else {
